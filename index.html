@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>I'M FABULOUS — Skincare Advisor</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream: #faf7f2;
+    --warm-white: #fff9f4;
+    --gold: #b89b6a;
+    --gold-light: #d4b896;
+    --gold-dark: #8a7145;
+    --charcoal: #1a1714;
+    --text: #2d2820;
+    --text-muted: #7a6e64;
+    --border: #e8dfd4;
+    --bubble-user: #2d2820;
+    --bubble-ai: #ffffff;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Jost', sans-serif;
+    background: transparent;
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    max-width: 760px;
+    width: 100%;
+    margin: 0 auto;
+    padding: 0 16px 24px;
+  }
+
+  .intro {
+    text-align: center;
+    padding: 20px 16px 28px;
+  }
+  .intro-eyebrow {
+    font-size: 10px;
+    letter-spacing: 0.3em;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+  .intro h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(28px, 5vw, 42px);
+    font-weight: 300;
+    color: var(--charcoal);
+    line-height: 1.2;
+    margin-bottom: 14px;
+  }
+  .intro h1 em { font-style: italic; color: var(--gold-dark); }
+  .intro p {
+    font-size: 14px;
+    color: var(--text-muted);
+    font-weight: 300;
+    max-width: 480px;
+    margin: 0 auto;
+    line-height: 1.7;
+  }
+
+  .divider {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 0 0 8px;
+  }
+  .divider::before, .divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+  .divider-dot { width: 4px; height: 4px; border-radius: 50%; background: var(--gold); }
+
+  #chat-window {
+    flex: 1;
+    overflow-y: auto;
+    padding: 4px 0 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    min-height: 320px;
+    max-height: 480px;
+  }
+
+  .message { display: flex; gap: 12px; animation: fadeUp 0.3s ease; }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .message.user { flex-direction: row-reverse; }
+
+  .avatar {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.05em;
+  }
+  .avatar.ai {
+    background: var(--charcoal);
+    color: var(--gold-light);
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 13px;
+  }
+  .avatar.user {
+    background: var(--gold);
+    color: white;
+  }
+
+  .bubble {
+    max-width: 82%;
+    padding: 14px 18px;
+    border-radius: 2px;
+    font-size: 14px;
+    line-height: 1.7;
+    font-weight: 300;
+  }
+  .message.ai .bubble {
+    background: var(--bubble-ai);
+    border: 1px solid var(--border);
+    border-radius: 0 8px 8px 8px;
+    color: var(--text);
+  }
+  .message.user .bubble {
+    background: var(--bubble-user);
+    color: #f5ede3;
+    border-radius: 8px 0 8px 8px;
+  }
+
+  .products-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 14px;
+  }
+  .product-card {
+    display: flex;
+    gap: 12px;
+    background: var(--warm-white);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    overflow: hidden;
+    transition: border-color 0.2s;
+  }
+  .product-card:hover { border-color: var(--gold); }
+  .product-img {
+    width: 72px; height: 72px;
+    object-fit: cover;
+    flex-shrink: 0;
+    background: #f0ebe4;
+  }
+  .product-info {
+    flex: 1;
+    padding: 10px 10px 10px 0;
+    min-width: 0;
+  }
+  .product-name {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text);
+    margin-bottom: 3px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .product-why {
+    font-size: 12px;
+    color: var(--text-muted);
+    line-height: 1.5;
+    font-weight: 300;
+    margin-bottom: 6px;
+  }
+  .product-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .product-price {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--gold-dark);
+  }
+  .shop-btn {
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--charcoal);
+    background: transparent;
+    border: 1px solid var(--charcoal);
+    padding: 4px 10px;
+    text-decoration: none;
+    border-radius: 20px;
+    transition: all 0.2s;
+    font-family: 'Jost', sans-serif;
+    cursor: pointer;
+  }
+  .shop-btn:hover {
+    background: var(--charcoal);
+    color: var(--gold-light);
+  }
+
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 14px;
+  }
+  .chip {
+    font-size: 12px;
+    padding: 6px 14px;
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    background: white;
+    color: var(--text);
+    cursor: pointer;
+    font-family: 'Jost', sans-serif;
+    font-weight: 400;
+    transition: all 0.18s;
+  }
+  .chip:hover {
+    border-color: var(--gold);
+    color: var(--gold-dark);
+    background: #fdf8f2;
+  }
+
+  .typing { display: flex; gap: 5px; padding: 4px 0; align-items: center; }
+  .typing span {
+    width: 7px; height: 7px;
+    background: var(--gold);
+    border-radius: 50%;
+    animation: bounce 1.1s ease infinite;
+  }
+  .typing span:nth-child(2) { animation-delay: 0.18s; }
+  .typing span:nth-child(3) { animation-delay: 0.36s; }
+  @keyframes bounce {
+    0%, 60%, 100% { transform: translateY(0); }
+    30% { transform: translateY(-6px); }
+  }
+
+  .input-area {
+    display: flex;
+    gap: 10px;
+    align-items: flex-end;
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 10px 14px;
+    margin-top: 12px;
+    transition: border-color 0.2s;
+  }
+  .input-area:focus-within { border-color: var(--gold); }
+  #user-input {
+    flex: 1;
+    border: none;
+    outline: none;
+    font-family: 'Jost', sans-serif;
+    font-size: 14px;
+    font-weight: 300;
+    color: var(--text);
+    background: transparent;
+    resize: none;
+    min-height: 24px;
+    max-height: 120px;
+    line-height: 1.5;
+  }
+  #user-input::placeholder { color: #bdb3a8; }
+  #send-btn {
+    background: var(--charcoal);
+    border: none;
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    cursor: pointer;
+    flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.2s;
+  }
+  #send-btn:hover { background: var(--gold-dark); }
+  #send-btn svg { width: 16px; height: 16px; }
+  #send-btn:disabled { opacity: 0.4; cursor: default; }
+
+  .footer-note {
+    text-align: center;
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-top: 14px;
+    font-weight: 300;
+  }
+  .footer-note a { color: var(--gold-dark); text-decoration: none; }
+
+  #chat-window::-webkit-scrollbar { width: 4px; }
+  #chat-window::-webkit-scrollbar-track { background: transparent; }
+  #chat-window::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="intro">
+    <div class="intro-eyebrow">Personalized for you</div>
+    <h1>Find your <em>perfect</em><br>skincare ritual</h1>
+    <p>Tell me your skin concerns, goals, or questions — and I'll recommend the ideal products from our collection.</p>
+  </div>
+
+  <div class="divider"><div class="divider-dot"></div></div>
+
+  <div id="chat-window"></div>
+
+  <div class="input-area">
+    <textarea id="user-input" placeholder="Describe your skin concerns… e.g. 'I have dark spots and fine lines'" rows="1"></textarea>
+    <button id="send-btn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="22" y1="2" x2="11" y2="13"></line>
+        <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+      </svg>
+    </button>
+  </div>
+
+  <div class="footer-note">
+    Powered by I'M FABULOUS COSMETICS® · <a href="https://imfabulouscosmetics.com" target="_blank">Shop all products</a>
+  </div>
+</div>
+
+<script>
+const PRODUCTS = [{"handle":"3ct-pear-cut-moissanite-pendant-necklace-east-west","title":"Gold 3CT Pear Cut Moissanite Pendant Necklace VVS1 925 Silver","type":"JEWELRY","price":1500.0,"tags":"anniversary gift, birthday gift, bridal jewelry, gift for her, luxury jewelry","image":"https://cdn.shopify.com/s/files/1/0720/6315/6457/files/Screenshot_2026-04-23_at_9.39.22_PM.png?v=1777005587","description":"3CT pear cut moissanite pendant necklace with VVS1 clarity. 925 sterling silver with 14K gold plating.","url":"https://imfabulouscosmetics.com/products/3ct-pear-cut-moissanite-pendant-necklace-east-west"},{"handle":"the-complete-estheticians-guide-to-topical-peptides-microneedling-professional-digital-download","title":"The Complete Esthetician's Guide to Topical Peptides & Microneedling","type":"EBOOK","price":47.0,"tags":"esthetician guide, microneedling guide, peptide facial guide, professional skincare pdf","image":"https://cdn.shopify.com/s/files/1/0720/6315/6457/files/Screenshot_2026-05-17_at_11.47.21_AM.png?v=1779043796","description":"Professional guide to topical peptides and microneedling protocols for estheticians.","url":"https://imfabulouscosmetics.com/products/the-complete-estheticians-guide-to-topical-peptides-microneedling-professional-digital-download"},{"handle":"most-powerful-anti-aging-peptide-duo","title":"GHK-Cu + SNAP-8 Peptide Duo","type":"SERUM","price":280.0,"tags":"anti aging, copper peptide serum, GHK-Cu, peptide duo, snap-8 serum, wrinkle serum, collagen","image":"https://cdn.shopify.com/s/files/1/0720/6315/6457/files/Screenshot_2026-03-26_at_6.33.09_PM.png?v=1774575386","description":"Powerful GHK-Cu and SNAP-8 peptide duo to reduce wrinkles, boost collagen, achieve glowing youthful skin.","url":"https://imfabulouscosmetics.com/products/most-powerful-anti-aging-peptide-duo"},{"handle":"deep-wrinkle-firming-treatment","title":"Deep Wrinkle & Firming Treatment Bundle","type":"SKIN CARE","price":644.0,"tags":"fine lines and wrinkles, serum for wrinkles, sagging skin, firming, anti-aging bundle","image":"https://cdn.shopify.com/s/files/1/0720/6315/6457/files/Screenshot2026-01-09at9.41.11AM.png?v=1767980504","description":"Anti-aging bundle for deep wrinkles & sagging skin. Includes volumizing serum, DMAE firming serum & peptide collagen cream.","url":"https://imfabulouscosmetics.com/products/deep-wrinkle-firming-treatment"},{"handle":"hyperpigmentation-brightening-solution","title":"Hyperpigmentation & Brightening Solution Bundle","type":"SERUM","price":287.0,"tags":"hyperpigmentation, dark spots, brightening, even skin tone, bundle","image":"https://cdn.shopify.com/s/files/1/0720/6315/6457/files/Screenshot2026-01-08at4.53.35PM.png?v=1767920056","description":"Premium brightening bundle to eliminate dark spots & hyperpigmentation.","url":"https://imfabulouscosmetics.com/products/hyperpigmentation-brightening-solution"},{"handle":"dark-circle-eye-rejuvenation-kit","title":"Dark Circle & Eye Rejuvenation Kit","type":"SERUM","price":312.0,"tags":"dark circles, eye bags, puffiness, tired eyes, fine lines, eye care bundle","image":"https://cdn.shopify.com/s/files/1/0720/6315/6457/files/Screenshot_2026-01-08_at_1.37.47_PM.png?v=1767908292","description":"Premium eye care bundle for dark circles, puffiness & tired eyes.","url":"https://imfabulouscosmetics.com/products/dark-circle-eye-rejuvenation-kit"},{"handle":"scalp-massager-hair-serum-applicator-oil-dispenser-comb-bottle-for-hair-growth-root-massage","title":"Scalp Massager Hair Serum Applicator","type":"DEVICE","price":29.0,"tags":"hair growth, hair loss, hair serum, haircare, scalp","image":"https://cdn.shopify.com/s/files/1/0720/6315/6457/files/Screenshot2026-01-03at10.02.40AM.png?v=1767463499","description":"Mess-free scalp massager applicator bottle for hair oils and growth serums.","url":"https://imfabulouscosmetics.com/products/scalp-massager-hair-serum-applicator-oil-dispenser-comb-bottle-for-hair-growth-root-massage"},{"handle":"luxury-peptide-powerhouse-bundle-4-organic-peptide-serums-for-firm-youthful-glowing-skin","title":"Luxury Peptide Powerhouse Bundle – 4 Serums","type":"SERUM","price":550.0,"tags":"anti-aging, peptide serum bundle, GHK-Cu, snap-8, syn-ake, luxury skincare, firming","image":"https://cdn.shopify.com/s/files/1/0720/6315/6457/files/peptidesbundlesetorganic.png?v=1764358783","description":"4 organic peptide serums for firm, youthful, glowing skin. Complete anti-aging bundle.","url":"https://imfabulouscosmetics.com/products/luxury-peptide-powerhouse-bundle-4-organic-peptide-serums-for-firm-youthful-glowing-skin"},{"handle":"i-m-fabulous-ageless-density-peptide-milk-essence","title":"Ageless Density Peptide Milk Essence","type":"TONER","price":49.0,"tags":"anti-aging, dehydrated skin, hydrating toner, peptide toner, firming essence","image":"https://cdn.shopify.com/s/files/1/0720/6315/6457/files/Screenshot_2025-10-23_at_10.48.44_AM.png?v=1761241750","description":"Lightweight peptide milk essence that firms, hydrates & fights aging.","url":"https://imfabulouscosmetics.com/products/i-m-fabulous-ageless-density-peptide-milk-essence"},{"handle":"ultra-soft-peptide-hair-serum","title":"Ultra Soft Peptides Hair Serum","type":"SERUM","price":99.0,"tags":"dry hair, hair growth, hair shine, haircare, peptide, unmanageable hair","image":"https://cdn.shopify.com/s/files/1/0720/6315/6457/files/Ultra_Soft_Peptides_Hair_Serum_For_Dry.png?v=1753127598","description":"Peptide hair serum that softens, smooths & tames dry, unmanageable hair.","url":"https://imfabulouscosmetics.com/products/ultra-soft-peptide-hair-serum"},{"handle":"ghk-biotin-peptide-serum-organic","title":"GHK-Biotin Peptide Serum","type":"SERUM","price":189.0,"tags":"anti-aging, GHK-Biotin, hair growth, copper peptide, collagen, thinning hair","image":"https://cdn.shopify.com/s/files/1/0720/6315/6457/files/GHK-BIOTIN_SERUM.png?v=1755543999","description":"Organic GHK-Cu + Biotin peptide serum for skin collagen & hair regrowth.","url":"https://imfabulouscosmetics.com/products/ghk-biotin-peptide-serum-organic"},{"handle":"syn-ake-peptide-serum-organic","title":"Syn-Ake Peptide Serum","type":"SERUM","price":159.0,"tags":"anti-aging, fine lines, wrinkles, botox alternative, Syn-Ake, expression lines","image":"https://cdn.shopify.com/s/files/1/0720/6315/6457/files/Syn-Ake_peptide_serum_organic_vegan_2.png?v=1755385287","description":"Botox-like Syn-Ake peptide serum that smooths wrinkles & reduces fine lines naturally.","url":"https://imfabulouscosmetics.com/products/syn-ake-peptide-serum-organic"},{"handle":"ghk-cu-peptide-serum-organic","title":"GHK-Cu Copper Peptide Serum","type":"SERUM","price":149.0,"tags":"anti-aging, copper peptide, GHK-Cu, fine lines, wrinkles, acne scars, skin repair","image":"https://cdn.shopify.com/s/files/1/0720/6315/6457/files/GHK-CU_TOPICAL_PEPTIDE_SERUM.png?v=1755544575","description":"GHK-Cu copper peptide serum for firming, hydrating & repairing damaged or aging skin.","url":"https://imfabulouscosmetics.com/products/ghk-cu-peptide-serum-organic"},{"handle":"snap-8-peptide-serum-organic","title":"SNAP-8 Peptide Serum","type":"SERUM","price":149.0,"tags":"anti-aging, botox alternative, fine lines, wrinkles, snap 8, crow's feet","image":"https://cdn.shopify.com/s/files/1/0720/6315/6457/files/SNAP-8_PEPTIDE_SERUM.png?v=1755376609","description":"Organic SNAP-8 peptide serum that reduces wrinkles, fine lines & crow's feet.","url":"https://imfabulouscosmetics.com/products/snap-8-peptide-serum-organic"},{"handle":"nad-resveratrol-collagen-serum","title":"NAD+ Resveratrol Collagen Serum","type":"SERUM","price":199.0,"tags":"anti-aging, antioxidant, biohacking, collagen, fine lines, glow, resveratrol","image":"https://cdn.shopify.com/s/files/1/0720/6315/6457/files/NADresveratrolcollagenserum.png?v=1749488498","description":"Organic NAD+ Resveratrol Collagen Serum packed with antioxidants to boost collagen and glow.","url":"https://imfabulouscosmetics.com/products/nad-resveratrol-collagen-serum"},{"handle":"mesotherapy-tool","title":"Hydra Needle Serum Applicator 0.25mm","type":"DEVICE","price":34.95,"tags":"mesotherapy, micro infusion, serum applicator, anti-aging tool, Hydra Needle, absorption","image":"https://cdn.shopify.com/s/files/1/0720/6315/6457/files/Hydra_Needle_20_Titanium_Serum_Applicator_Tools_Reusable_2.png?v=1740247963","description":"Professional-grade micro-infusion device for enhanced serum absorption at home.","url":"https://imfabulouscosmetics.com/products/mesotherapy-tool"},{"handle":"deluxe-red-light-therapy-mat-elevate-your-well-being","title":"Deluxe Red Light Therapy Mat","type":"DEVICE","price":850.0,"tags":"red light therapy, infrared, collagen, muscle recovery, wellness, skin rejuvenation","image":"https://cdn.shopify.com/s/files/1/0720/6315/6457/files/deluxe_light_therapy_mat_made_in_usa.png?v=1771952419","description":"Professional red light therapy mat with 660nm & 850nm NIR wavelengths for collagen, recovery & healing.","url":"https://imfabulouscosmetics.com/products/deluxe-red-light-therapy-mat-elevate-your-well-being"},{"handle":"gold-applicators","title":"Gold Serum & Moisturizer Applicator Tool","type":"SKINCARE TOOLS","price":10.0,"tags":"skincare applicator, spatula, under eyes, hygienic application","image":"https://cdn.shopify.com/s/files/1/0720/6315/6457/files/SKINCARESPATULAGOLDLUXURY.png?v=1738283901","description":"Luxury gold skincare spatula for hygienic serum and moisturizer application.","url":"https://imfabulouscosmetics.com/products/gold-applicators"},{"handle":"detox-cleansing-balm-makeup-remover","title":"Detox Cleansing Balm","type":"CLEANSER","price":48.0,"tags":"cleanser, makeup remover, organic, purifying, all skin types","image":"https://cdn.shopify.com/s/files/1/0720/6315/6457/files/detox_cleansing_balm.png?v=1737423839","description":"Organic detox cleansing balm that melts away makeup, dirt & impurities while deeply hydrating.","url":"https://imfabulouscosmetics.com/products/detox-cleansing-balm-makeup-remover"},{"handle":"the-glow-guide","title":"Glow Skincare Guide (Digital Download)","type":"EBOOK","price":1.0,"tags":"skincare guide, glowing skin, routine, ebook, download, beginner skincare","image":"https://cdn.shopify.com/s/files/1/0720/6315/6457/files/THE_GLOWGUIDE_BY_I_M_FABULOUS.png?v=1737238176","description":"Ultimate skincare routine guide for radiant, healthy, youthful skin.","url":"https://imfabulouscosmetics.com/products/the-glow-guide"},{"handle":"the-resurfacing-bundle","title":"The Skin Resurfacing Bundle","type":"SKIN CARE","price":188.0,"tags":"acne, acne scars, chemical peel, tca peel, wrinkles, exfoliation bundle","image":"https://cdn.shopify.com/s/files/1/0720/6315/6457/files/TheI_mFabulousResurfacingBundle_3c7a44ef-638a-407d-b19a-e373a69c39a9.png?v=1737146024","description":"Ultimate exfoliation set to smooth skin, reduce wrinkles, acne scars & hyperpigmentation.","url":"https://imfabulouscosmetics.com/products/the-resurfacing-bundle"},{"handle":"ibiza-perfume","title":"Ibiza Perfume","type":"FRAGRANCE","price":229.0,"tags":"perfume, fragrance, eau de parfum, floral, exotic, gift","image":"https://cdn.shopify.com/s/files/1/0720/6315/6457/files/IBIZA_PERFUME.png?v=1736920272","description":"Exotic, seductive fragrance with jasmine, sea spray, mandarin & sandalwood. Made in Grasse, France.","url":"https://imfabulouscosmetics.com/products/ibiza-perfume"},{"handle":"gift-box","title":"Luxury Black Beauty Gift Box","type":"GIFT BOX","price":10.0,"tags":"gift, luxury skincare gift, gift for her, gift box","image":"https://cdn.shopify.com/s/files/1/0720/6315/6457/files/i_mfabulouscosmeticsgiftbox.png?v=1736297834","description":"Elegant luxury skincare gift box — the perfect present for her.","url":"https://imfabulouscosmetics.com/products/gift-box"},{"handle":"detox-mask-for-brighter-skin-remove-impurities","title":"Detox Mask for Brighter Skin","type":"MASK","price":58.0,"tags":"blackheads, brighten, dry skin, pore cleansing, mask, sensitive skin","image":"https://cdn.shopify.com/s/files/1/0720/6315/6457/files/mask_de_beaute_detox.png?v=1734498169","description":"Deep cleansing detox mask that purifies pores, brightens & boosts glow.","url":"https://imfabulouscosmetics.com/products/detox-mask-for-brighter-skin-remove-impurities"},{"handle":"seaweed-age-reverse-toner-100-ml","title":"Seaweed Age Reverse Toner","type":"TONER","price":69.99,"tags":"anti-aging, dry skin, fine lines, natural toner, organic toner, sensitive skin, firming","image":"https://cdn.shopify.com/s/files/1/0720/6315/6457/files/SEAWEED_AGE_REVERSE_TONER.png?v=1733885718","description":"Anti-aging seaweed toner that hydrates, firms & rejuvenates skin.","url":"https://imfabulouscosmetics.com/products/seaweed-age-reverse-toner-100-ml"},{"handle":"marine-peptide-moisturizer","title":"Marine Peptide Moisturizer","type":"MOISTURIZER","price":49.0,"tags":"anti-aging, fine lines, moisturizer, peptides, wrinkles, hydrating cream","image":"https://cdn.shopify.com/s/files/1/0720/6315/6457/files/marinepeptidemoisturizergold.png?v=1733356567","description":"Anti-aging marine peptide cream that hydrates, firms & rejuvenates skin.","url":"https://imfabulouscosmetics.com/products/marine-peptide-moisturizer"},{"handle":"gorgeous-peel-30-ml","title":"Gorgeous Peel","type":"SKIN PEEL","price":99.0,"tags":"acne scars, chemical peel, exfoliating, hyperpigmentation, sun damage, no downtime","image":"https://cdn.shopify.com/s/files/1/0720/6315/6457/files/Gorgeouspeelgold.png?v=1733252239","description":"Multi-acid face peel for acne, aging, and hyperpigmentation. No downtime.","url":"https://imfabulouscosmetics.com/products/gorgeous-peel-30-ml"},{"handle":"cleansing-concentrate","title":"Cleansing Concentrate","type":"CLEANSER","price":68.0,"tags":"cleanser, dry skin, makeup remover, hydrating, organic, deep cleansing","image":"https://cdn.shopify.com/s/files/1/0720/6315/6457/files/cleansing_concentrate_gold.png?v=1733420946","description":"Deep purifying cleanser that removes makeup, hydrates & refreshes skin.","url":"https://imfabulouscosmetics.com/products/cleansing-concentrate"},{"handle":"organic-retinol-bakuchiol-serum","title":"Retinol Bakuchiol Serum","type":"SERUM","price":90.0,"tags":"anti-aging, Bakuchiol, fine lines, retinol, wrinkles, plant retinol","image":"https://cdn.shopify.com/s/files/1/0720/6315/6457/files/retinol_bakuchiol_serum_gold.png?v=1733265582","description":"Anti-aging retinol & bakuchiol serum that reduces wrinkles, firms & rejuvenates skin.","url":"https://imfabulouscosmetics.com/products/organic-retinol-bakuchiol-serum"},{"handle":"wakeup-eye-serum","title":"WakeUp Eye Serum","type":"SERUM","price":149.0,"tags":"anti-aging, dark circles, eye serum, fine lines, puffiness, organic eye serum","image":"https://cdn.shopify.com/s/files/1/0720/6315/6457/files/WAKEUPEYESERUMGOLD.png?v=1733347114","description":"Organic peptide eye serum for dark circles, puffiness & fine lines.","url":"https://imfabulouscosmetics.com/products/wakeup-eye-serum"},{"handle":"the-blue-dream-moisturizer-50-ml","title":"Blue Dream Moisturizer","type":"MOISTURIZER","price":80.0,"tags":"dehydrated skin, dry skin, eczema, sensitive skin, calming, redness, soothing","image":"https://cdn.shopify.com/s/files/1/0720/6315/6457/files/BLUE_DREAM_MOISTURIZER.png?v=1733507080","description":"Hydrating, calming moisturizer that rejuvenates & soothes sensitive skin.","url":"https://imfabulouscosmetics.com/products/the-blue-dream-moisturizer-50-ml"},{"handle":"conceal","title":"Concealer Conceal+","type":"CONCEALER","price":44.0,"tags":"concealer, under eye, makeup, organic makeup, dark circles, blemishes, full coverage","image":"https://cdn.shopify.com/s/files/1/0720/6315/6457/files/CONCEAL.png?v=1734026689","description":"Full coverage organic concealer for flawless finish. Covers blemishes & dark circles.","url":"https://imfabulouscosmetics.com/products/conceal"},{"handle":"organic-plant-based-glow-hydra-facial","title":"Glow Hydra Facial Treatment","type":"SERUM","price":360.0,"tags":"anti-aging, hydra facial, microneedling, organic, skin plumping, glow, professional grade","image":"https://cdn.shopify.com/s/files/1/0720/6315/6457/files/GLOW_HYDRA_FACIAL_ORGANIC_DUO_GOLD.png?v=1733434237","description":"Deep hydrating facial treatment that rejuvenates, plumps & boosts glow.","url":"https://imfabulouscosmetics.com/products/organic-plant-based-glow-hydra-facial"},{"handle":"glow-derma-pen-cartridges-needles-cartridge-needles-42","title":"Microneedling Pen Cartridge Needles","type":"MICRONEEDLING","price":75.0,"tags":"anti-aging, microneedling, needles, cartridges, skin treatment","image":"https://cdn.shopify.com/s/files/1/0720/6315/6457/files/Cartridges_Needles_for_Microneedling_Pen_Precision_Tip_Safe_Effective_Skin_Treatment_for_Anti-Aging_36.png?v=1742856942","description":"Precision microneedling cartridge needles for safe, effective skin treatment.","url":"https://imfabulouscosmetics.com/products/glow-derma-pen-cartridges-needles-cartridge-needles-42"},{"handle":"microneedling-professional-glow-derma-pen-kit-c-serum-kit","title":"Microneedling Pen Kit with LED Lights","type":"MICRONEEDLING","price":499.0,"tags":"acne scars, anti-aging, microneedling, led light, professional, collagen induction","image":"https://cdn.shopify.com/s/files/1/0720/6315/6457/files/Screenshot_2026-02-15_at_3.10.04_PM.png?v=1771198517","description":"Professional microneedling pen kit with LED lights for at-home anti-aging treatment.","url":"https://imfabulouscosmetics.com/products/microneedling-professional-glow-derma-pen-kit-c-serum-kit"},{"handle":"revive-mask-hydrating-plumping-mask","title":"Revive Plumping Mask","type":"MASK","price":55.0,"tags":"copper peptides, dry skin, hydrating mask, organic face mask, repair, fine lines","image":"https://cdn.shopify.com/s/files/1/0720/6315/6457/files/revive_mask_i_m_fabulous.png?v=1733771851","description":"Organic hydrating face mask with botanicals that smooths fine lines and delivers deep hydration.","url":"https://imfabulouscosmetics.com/products/revive-mask-hydrating-plumping-mask"},{"handle":"dmae-supreme-serum","title":"DMAE Supreme Serum","type":"SERUM","price":79.0,"tags":"anti-aging, dmae, fine lines, lifting, sagging skin, tightening, firming","image":"https://cdn.shopify.com/s/files/1/0720/6315/6457/files/DMAE_Supreme_Serum_Firming_Anti-Aging_Skin-Lifting_Serum_for_a_Youthful_Glow.png?v=1742857224","description":"Firming DMAE serum that lifts, tightens & fights aging for a youthful glow.","url":"https://imfabulouscosmetics.com/products/dmae-supreme-serum"},{"handle":"silk-body-oil","title":"Silk Body Oil","type":"BODY CARE","price":79.99,"tags":"body oil, dry skin, eczema, glowing skin, hydrating, nourishing, silky","image":"https://cdn.shopify.com/s/files/1/0720/6315/6457/files/Silk_Body_Oil_Luxurious_Hydrating_Nourishing_Oil_for_Smooth_Skin.png?v=1742857507","description":"Luxurious hydrating body oil that nourishes, smooths & gives skin a radiant glow.","url":"https://imfabulouscosmetics.com/products/silk-body-oil"},{"handle":"hair-growth-organic-serum","title":"Hair Growth Serum","type":"SERUM","price":71.0,"tags":"alopecia, hair growth, hair loss, hair serum, thinning hair, scalp treatment","image":"https://cdn.shopify.com/s/files/1/0720/6315/6457/files/HAIRGROWTHSERUMgold.png?v=1733373804","description":"Powerful hair regrowth serum that thickens, strengthens & promotes fuller, healthier hair.","url":"https://imfabulouscosmetics.com/products/hair-growth-organic-serum"},{"handle":"professional-dermaplaning-tool","title":"Dermaplaning Tool","type":"SKINCARE TOOLS","price":24.0,"tags":"dermaplaning, exfoliation, peach fuzz removal, smooth skin, facial tool","image":"https://cdn.shopify.com/s/files/1/0720/6315/6457/files/Dermaplaning_Tool_Precision_Facial_Exfoliator_for_Smooth_Radiant_Skin_Peach_Fuzz_Removal.png?v=1742933433","description":"Precision dermaplaning tool that exfoliates, removes peach fuzz & reveals smooth, radiant skin.","url":"https://imfabulouscosmetics.com/products/professional-dermaplaning-tool"},{"handle":"organic-plant-based-illuminating-complexion-serum","title":"Illuminating Serum","type":"SERUM","price":79.99,"tags":"anti-aging, fine lines, glass skin, glow, glowing skin, illuminating, brightening","image":"https://cdn.shopify.com/s/files/1/0720/6315/6457/files/ILLUMINATINGCOMLXIONSERUMGOLD_png.png?v=1733256053","description":"Radiant glow serum that brightens, fights aging & perfects complexion.","url":"https://imfabulouscosmetics.com/products/organic-plant-based-illuminating-complexion-serum"},{"handle":"luxe-cleanser-with-mushrooms","title":"Luxe Cleanser with Mushrooms","type":"CLEANSER","price":75.0,"tags":"cleanser, dry skin, hydrating, organic, mushroom, anti-aging, makeup remover","image":"https://cdn.shopify.com/s/files/1/0720/6315/6457/files/LUXECLEANSERGOLD.png?v=1733357299","description":"Hydrating mushroom cleanser that removes makeup, nourishes & purifies skin.","url":"https://imfabulouscosmetics.com/products/luxe-cleanser-with-mushrooms"},{"handle":"glow-boosting-hydrate-mask-organic","title":"Glow Boosting Hydrate Mask","type":"MASK","price":50.0,"tags":"anti-aging, dry skin, glowing skin, hydrate, mask, organic, brightening","image":"https://cdn.shopify.com/s/files/1/0720/6315/6457/files/glowhydratemask.png?v=1733435028","description":"Deep hydrating face mask that brightens, plumps & boosts radiance.","url":"https://imfabulouscosmetics.com/products/glow-boosting-hydrate-mask-organic"},{"handle":"luxurious-serum","title":"Luxurious Serum","type":"SERUM","price":180.0,"tags":"anti-aging, dry skin, hydrate, luxury serum, organic serum, skin repair, cbd","image":"https://cdn.shopify.com/s/files/1/0720/6315/6457/files/LUXURIOUS_SERUM_GOLD.png?v=1736298159","description":"Anti-aging luxury serum that hydrates, rejuvenates & restores radiance.","url":"https://imfabulouscosmetics.com/products/luxurious-serum"},{"handle":"caviar-luxury-lifting-serum","title":"Caviar Luxury Lifting Serum","type":"SERUM","price":1000.0,"tags":"anti-aging, caviar, lifting, luxury, marine firming serum, tightening, wrinkles, collagen","image":"https://cdn.shopify.com/s/files/1/0720/6315/6457/files/caviar_luxury_lifting_serum_gold.png?v=1733419411","description":"Organic Caviar Luxury Lifting Serum — firming, hydrating, rich in collagen-boosting marine actives.","url":"https://imfabulouscosmetics.com/products/caviar-luxury-lifting-serum"},{"handle":"super-peptide-anti-aging-serum-with-fast-action-brightening","title":"Super Peptide Anti-Aging Serum","type":"SERUM","price":399.0,"tags":"anti-aging, collagen booster, fine lines, luxury skincare, peptide serum, brightening, wrinkles","image":"https://cdn.shopify.com/s/files/1/0720/6315/6457/files/SUPER_PEPTIDE_ANTI-AGING_SERUM_WITH_FAST_ACTION_BRIGHTENING.png?v=1733448388","description":"Luxury organic serum with GHK-Cu, SNAP-8, and Snow Mushroom for wrinkle reduction, brightening & collagen.","url":"https://imfabulouscosmetics.com/products/super-peptide-anti-aging-serum-with-fast-action-brightening"},{"handle":"sea-kelp-mask","title":"Sea Kelp Mask","type":"MASK","price":88.0,"tags":"acne, acne scars, detox, face mask, organic, hydrating, kelp","image":"https://cdn.shopify.com/s/files/1/0720/6315/6457/files/SEA_KELP_MASK_VARESH_DE_MER.png?v=1742144488","description":"Hydrating sea kelp mask that detoxifies, rejuvenates & revitalizes skin.","url":"https://imfabulouscosmetics.com/products/sea-kelp-mask"},{"handle":"vitamin-c-super-brightening-facial-serum","title":"Vitamin C Super Brightening Serum","type":"SERUM","price":74.0,"tags":"anti-aging, antioxidant, brightening, dark spots, fine lines, organic serum, vitamin c","image":"https://cdn.shopify.com/s/files/1/0720/6315/6457/files/VITAMINCSUPERBRIGHTENINGSERUMGOLD.png?v=1733348883","description":"Powerful vitamin C serum that brightens, fights aging & fades dark spots.","url":"https://imfabulouscosmetics.com/products/vitamin-c-super-brightening-facial-serum"},{"handle":"vitamin-c-hydrating-serum-organic","title":"Vitamin C Hydrating Serum","type":"SERUM","price":59.0,"tags":"acne, anti-aging, brightening, dark spots, organic serum, vitamin c, sun damage","image":"https://cdn.shopify.com/s/files/1/0720/6315/6457/files/Microneedling_Pro_Glow_Derma_Wireless_Pen_Kit_with_LED_Lights_Professional_Skin_Rejuvenation_Anti-Aging_Treatment_kit.png?v=1771198517","description":"Brightening vitamin C serum that hydrates, fights aging & boosts radiance.","url":"https://imfabulouscosmetics.com/products/vitamin-c-hydrating-serum-organic"},{"handle":"super-white-bio-serum","title":"Super White Bio Serum","type":"SERUM","price":175.0,"tags":"anti-aging, dark spots, even skin tone, hyperpigmentation, organic serum, brightening","image":"https://cdn.shopify.com/s/files/1/0720/6315/6457/files/I_m_Fabulous_Super_White_Bio_Serum_-_best_organic_hyperpigmentation_treatment.png?v=1754687757","description":"Organic Super White Bio Serum to fade dark spots naturally with clean beauty formula.","url":"https://imfabulouscosmetics.com/products/super-white-bio-serum"},{"handle":"super-peptide-eye-serum-organic","title":"Super Peptide Eye Serum","type":"SERUM","price":55.0,"tags":"anti-aging, eye serum, fine lines, peptides, wrinkles, dark circles, puffiness","image":"https://cdn.shopify.com/s/files/1/0720/6315/6457/files/super_peptide_eye_serum.png?v=1733513086","description":"Advanced peptide eye serum for dark circles, puffiness & wrinkles.","url":"https://imfabulouscosmetics.com/products/super-peptide-eye-serum-organic"},{"handle":"volumizing-serum","title":"Volumizing & Skin Plumping Serum","type":"SERUM","price":600.0,"tags":"anti-aging, fine lines, firming, skin plumping, volumizing, lips, deep wrinkles","image":"https://cdn.shopify.com/s/files/1/0720/6315/6457/files/volumizing_serum_for_deep_wrinkles_and_fine_lines.png?v=1749851279","description":"Anti-aging firming serum that restores youthful fullness and smooths fine lines.","url":"https://imfabulouscosmetics.com/products/volumizing-serum"},{"handle":"20-niacinamide-b3-rescue-skin-serum-organic","title":"20% Niacinamide + B3 Rescue Serum","type":"SERUM","price":89.0,"tags":"acne, acne scars, anti-aging, hyperpigmentation, niacinamide, pore minimizing, brightening","image":"https://cdn.shopify.com/s/files/1/0720/6315/6457/files/20_niacinamideserumgold.png?v=1733431346","description":"High-potency 20% niacinamide serum that brightens, minimizes pores & repairs skin.","url":"https://imfabulouscosmetics.com/products/20-niacinamide-b3-rescue-skin-serum-organic"},{"handle":"high-tech-copper-peptide-serum-organic-10-serum-only","title":"High Tech Copper Peptide Serum 10%","type":"SERUM","price":299.0,"tags":"acne scars, anti-aging, copper peptide, fine lines, firming, hair growth, hyperpigmentation","image":"https://cdn.shopify.com/s/files/1/0720/6315/6457/files/HIGHTECHCOPPERPEPTIDESSERUMGOLD.png?v=1733270553","description":"Ultrastrong 10% Copper Peptide Serum for skin repair, hair growth & collagen boosting.","url":"https://imfabulouscosmetics.com/products/high-tech-copper-peptide-serum-organic-10-serum-only"},{"handle":"glow-boosting-organic-serum","title":"Glow Boosting Serum","type":"SERUM","price":79.0,"tags":"acne, anti-aging, dark spots, fine lines, hydrating, organic serum, sensitive skin, brightening","image":"https://cdn.shopify.com/s/files/1/0720/6315/6457/files/GLOWBOOSTINFSERUMGOLD.png?v=1733374138","description":"Radiance-enhancing serum that brightens, evens tone & boosts glow.","url":"https://imfabulouscosmetics.com/products/glow-boosting-organic-serum"},{"handle":"eye-bright-intensive-serum-organic","title":"Eye Bright Intensive Serum","type":"SERUM","price":139.0,"tags":"anti-aging, dark circles, eye bags, eye serum, fine lines, puffy eyes, brightening","image":"https://cdn.shopify.com/s/files/1/0720/6315/6457/files/eye_bright_intensive_serum_gold.png?v=1733438893","description":"Intensive eye serum for dark circles, puffiness & fine lines.","url":"https://imfabulouscosmetics.com/products/eye-bright-intensive-serum-organic"},{"handle":"hyaluronic-acid-hydrating-serum","title":"Hyaluronic Acid Hydrating Serum","type":"SERUM","price":125.0,"tags":"aging skin, anti-aging, hyaluronic acid, hydrating, organic serum, plumping, wrinkles","image":"https://cdn.shopify.com/s/files/1/0720/6315/6457/files/HYALURONICACIDHYDRATINGSERUMGOLD.png?v=1733286607","description":"Hyaluronic acid serum that deeply hydrates, plumps & smooths skin.","url":"https://imfabulouscosmetics.com/products/hyaluronic-acid-hydrating-serum"},{"handle":"power-anti-aging-eye-cream-organic","title":"Power Anti-Aging Eye Cream","type":"MOISTURIZER","price":79.0,"tags":"anti-aging, eye cream, fine lines, organic, wrinkles, dark circles, puffiness","image":"https://cdn.shopify.com/s/files/1/0720/6315/6457/files/power_antiaging_eye_cream_gold.png?v=1733373108","description":"Organic anti-aging eye cream with peptides for dark circles, puffiness & wrinkles.","url":"https://imfabulouscosmetics.com/products/power-anti-aging-eye-cream-organic"},{"handle":"peptide-collagen-repair-cream-organic","title":"Peptide Collagen Repair Cream","type":"MOISTURIZER","price":79.0,"tags":"anti-aging, collagen, face cream, neck cream, organic, peptide, wrinkles, firming","image":"https://cdn.shopify.com/s/files/1/0720/6315/6457/files/peptidecollagenrepairgold.png?v=1733440122","description":"Clinical-grade peptide collagen cream that lifts, firms, and repairs aging skin.","url":"https://imfabulouscosmetics.com/products/peptide-collagen-repair-cream-organic"},{"handle":"organic-plant-based-retinol-moisturizer","title":"Retinol Moisturizer","type":"MOISTURIZER","price":60.95,"tags":"anti-aging, organic retinol, retinol cream, wrinkle cream, plant based, firming","image":"https://cdn.shopify.com/s/files/1/0720/6315/6457/files/plants_retinol_moisturizer.png?v=1733506425","description":"Anti-aging retinol moisturizer that smooths wrinkles, firms & rejuvenates skin.","url":"https://imfabulouscosmetics.com/products/organic-plant-based-retinol-moisturizer"},{"handle":"hydrating-rosewater","title":"Hydrating Rosewater Facial Mist","type":"TONER","price":69.99,"tags":"anti-aging, hydrating, mist, rosewater, sensitive skin, toner, soothing, refreshing","image":"https://cdn.shopify.com/s/files/1/0720/6315/6457/files/ROSEWATER_TONER_ORGANIC.png?v=1733885011","description":"Organic hydrating rosewater facial mist that refreshes, soothes & moisturizes skin.","url":"https://imfabulouscosmetics.com/products/hydrating-rosewater"},{"handle":"tca-toner","title":"TCA Toner","type":"TONER","price":49.0,"tags":"acne, age spots, anti-aging, dark spots, hyperpigmentation, melasma, exfoliating","image":"https://cdn.shopify.com/s/files/1/0720/6315/6457/files/TCA_TONER.png?v=1734135303","description":"Exfoliating TCA toner that refines pores, rejuvenates & brightens skin.","url":"https://imfabulouscosmetics.com/products/tca-toner"},{"handle":"tca-lactic-glycolic-body-peel-30-ml","title":"TCA Lactic & Glycolic Body Peel","type":"SKIN PEEL","price":109.0,"tags":"body peel, stretch marks, body acne, hyperpigmentation, keratosis pilaris, collagen, sun damage","image":"https://cdn.shopify.com/s/files/1/0720/6315/6457/files/Screenshot_2026-02-17_at_3.47.40_PM.png?v=1771372626","description":"Professional body peel for stretch marks, body acne, hyperpigmentation & uneven texture.","url":"https://imfabulouscosmetics.com/products/tca-lactic-glycolic-body-peel-30-ml"},{"handle":"wild-berry-honey-exfoliator","title":"Wild Berry Honey Exfoliator","type":"EXFOLIATOR","price":79.0,"tags":"anti-aging, congested pores, organic cleanser, sensitive skin, exfoliator, brightening","image":"https://cdn.shopify.com/s/files/1/0720/6315/6457/files/wildberryhoneyexfoliatorgold.png?v=1733417675","description":"Organic wild berry honey exfoliator that gently buffs away dead skin for smooth, radiant complexion.","url":"https://imfabulouscosmetics.com/products/wild-berry-honey-exfoliator"},{"handle":"tca-cleanser-organic","title":"TCA Resurfacing Cleanser","type":"CLEANSER","price":49.99,"tags":"acne scars, dull skin, face wash, hyperpigmentation, melasma, tca, resurfacing","image":"https://cdn.shopify.com/s/files/1/0720/6315/6457/files/TCA_CLEANSER.png?v=1735585969","description":"Exfoliating TCA cleanser that renews skin, refines pores & reveals radiance.","url":"https://imfabulouscosmetics.com/products/tca-cleanser-organic"},{"handle":"bio-gorgeous-peel","title":"Bio Gorgeous Peel","type":"SKIN PEEL","price":99.0,"tags":"anti-aging, dull skin, scarring, uneven skin, wrinkles, exfoliating, resurfacing","image":"https://cdn.shopify.com/s/files/1/0720/6315/6457/files/Bio_Gorgeous_Peel_Skin_Resurfacing_Exfoliating_Anti-Aging_Treatment_for_Smooth_Glowing_Skin.png?v=1742934456","description":"Professional skin resurfacing peel that exfoliates, reduces wrinkles & brightens.","url":"https://imfabulouscosmetics.com/products/bio-gorgeous-peel"},{"handle":"peptides-mushrooms-gel-serum","title":"Peptides + Mushrooms Serum","type":"SERUM","price":95.0,"tags":"anti-aging, hydrating, mushrooms, peptides, firming, rejuvenating, youthful","image":"https://cdn.shopify.com/s/files/1/0720/6315/6457/files/Peptides_Mushrooms_Serum_Anti-Aging_Skin_Firming_Rejuvenating_Serum_for_Youthful_Radiant_Skin.png?v=1747415736","description":"Organic peptide & mushroom serum for firmer, younger-looking skin.","url":"https://imfabulouscosmetics.com/products/peptides-mushrooms-gel-serum"}];
+
+const SYSTEM_PROMPT = `You are a luxury skincare advisor for I'M FABULOUS COSMETICS® (imfabulouscosmetics.com).
+Your role is to understand the customer's skin concerns and recommend the most relevant products from the catalog.
+
+PRODUCT CATALOG (use ONLY these products, referenced by handle):
+${JSON.stringify(PRODUCTS.map(p => ({ handle: p.handle, title: p.title, type: p.type, price: p.price, tags: p.tags, description: p.description })))}
+
+GUIDELINES:
+- Be warm, knowledgeable, and luxurious in tone — like a high-end beauty consultant
+- Ask clarifying questions when needed (skin type, concerns, budget)
+- Recommend 2-4 products maximum per response — quality over quantity
+- Always explain WHY each product suits their specific concern
+- Mention the price naturally
+- For hair concerns recommend hair products, body concerns = body products
+- For complete beginners, start with one hero product + one cleanser
+- Bundles are great value — highlight them when relevant
+- Keep responses concise and elegant
+
+RESPONSE FORMAT — respond ONLY with valid JSON, no other text:
+{
+  "message": "Your warm conversational response (2-3 sentences max, do not name products here)",
+  "products": [
+    {
+      "handle": "exact-product-handle",
+      "why": "One sentence why this suits them"
+    }
+  ]
+}
+
+Only include products array when recommending products. If just asking a question, omit products array or use empty array.`;
+
+let conversationHistory = [];
+let isLoading = false;
+
+const chatWindow = document.getElementById('chat-window');
+const userInput = document.getElementById('user-input');
+const sendBtn = document.getElementById('send-btn');
+
+function scrollToBottom() {
+  chatWindow.scrollTop = chatWindow.scrollHeight;
+}
+
+function addMessage(role, content, products = []) {
+  const div = document.createElement('div');
+  div.className = `message ${role}`;
+
+  const avatar = document.createElement('div');
+  avatar.className = `avatar ${role}`;
+  avatar.textContent = role === 'ai' ? 'IF' : 'You';
+
+  const bubble = document.createElement('div');
+  bubble.className = 'bubble';
+  bubble.textContent = content;
+
+  if (products && products.length > 0) {
+    const grid = document.createElement('div');
+    grid.className = 'products-grid';
+    products.forEach(p => {
+      const prod = PRODUCTS.find(x => x.handle === p.handle);
+      if (!prod) return;
+      const card = document.createElement('div');
+      card.className = 'product-card';
+      card.innerHTML = `
+        <img class="product-img" src="${prod.image}" alt="${prod.title}" onerror="this.style.background='#f0ebe4'">
+        <div class="product-info">
+          <div class="product-name">${prod.title}</div>
+          <div class="product-why">${p.why}</div>
+          <div class="product-footer">
+            <div class="product-price">$${prod.price % 1 === 0 ? prod.price.toFixed(0) : prod.price.toFixed(2)}</div>
+            <a href="${prod.url}" target="_blank" class="shop-btn">Shop Now</a>
+          </div>
+        </div>
+      `;
+      grid.appendChild(card);
+    });
+    bubble.appendChild(grid);
+  }
+
+  div.appendChild(avatar);
+  div.appendChild(bubble);
+  chatWindow.appendChild(div);
+  scrollToBottom();
+}
+
+function addTyping() {
+  const div = document.createElement('div');
+  div.className = 'message ai';
+  div.id = 'typing-indicator';
+  div.innerHTML = `
+    <div class="avatar ai">IF</div>
+    <div class="bubble"><div class="typing"><span></span><span></span><span></span></div></div>
+  `;
+  chatWindow.appendChild(div);
+  scrollToBottom();
+  return div;
+}
+
+function addQuickChips(chips) {
+  const div = document.createElement('div');
+  div.className = 'chips';
+  div.id = 'quick-chips';
+  chips.forEach(text => {
+    const chip = document.createElement('button');
+    chip.className = 'chip';
+    chip.textContent = text;
+    chip.onclick = () => {
+      document.getElementById('quick-chips')?.remove();
+      sendMessage(text);
+    };
+    div.appendChild(chip);
+  });
+  chatWindow.appendChild(div);
+  scrollToBottom();
+}
+
+async function sendMessage(text) {
+  if (isLoading || !text.trim()) return;
+  document.getElementById('quick-chips')?.remove();
+
+  addMessage('user', text);
+  conversationHistory.push({ role: 'user', content: text });
+
+  isLoading = true;
+  sendBtn.disabled = true;
+  userInput.value = '';
+  userInput.style.height = 'auto';
+
+  const typing = addTyping();
+
+  try {
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        system: SYSTEM_PROMPT,
+        messages: conversationHistory
+      })
+    });
+
+    const data = await response.json();
+    const raw = data.content?.[0]?.text || '{}';
+
+    let parsed;
+    try {
+      const clean = raw.replace(/```json|```/g, '').trim();
+      parsed = JSON.parse(clean);
+    } catch {
+      parsed = { message: raw, products: [] };
+    }
+
+    typing.remove();
+    const msg = parsed.message || "I'd love to help — could you tell me a little more about your skin?";
+    addMessage('ai', msg, parsed.products || []);
+    conversationHistory.push({ role: 'assistant', content: raw });
+
+    if (conversationHistory.length === 2) {
+      addQuickChips(['Anti-aging & wrinkles', 'Dark spots & brightening', 'Hair growth', 'Sensitive skin', 'Eye area concerns']);
+    }
+
+  } catch (err) {
+    typing.remove();
+    addMessage('ai', "I'm having a moment — please try again shortly.");
+    console.error(err);
+  }
+
+  isLoading = false;
+  sendBtn.disabled = false;
+}
+
+window.addEventListener('load', () => {
+  setTimeout(() => {
+    addMessage('ai', "Welcome to I'M FABULOUS COSMETICS®. I'm your personal skincare advisor — tell me about your skin concerns, goals, or what you'd like to treat, and I'll curate the perfect ritual for you.");
+    addQuickChips(['Anti-aging & wrinkles', 'Dark spots & brightening', 'Dry / dehydrated skin', 'Hair growth', 'Eye area concerns', 'Gift ideas']);
+  }, 400);
+});
+
+userInput.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    sendMessage(userInput.value.trim());
+  }
+});
+sendBtn.addEventListener('click', () => sendMessage(userInput.value.trim()));
+
+userInput.addEventListener('input', function() {
+  this.style.height = 'auto';
+  this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+});
+</script>
+</body>
+</html>
